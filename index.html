@@ -428,14 +428,52 @@
     /* ===================== FOOTER ===================== */
     footer {
       border-top: 1px solid var(--border);
-      max-width: 1200px; margin: 0 auto;
-      padding: 28px 40px;
-      display: flex; align-items: center; justify-content: space-between;
       position: relative; z-index: 1;
+      background: var(--surface);
     }
-    .footer-copy { font-size: 13px; color: var(--text-2); }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 56px 40px 32px;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 40px;
+    }
+    .footer-brand .footer-logo {
+      font-size: 18px; font-weight: 700; color: var(--text);
+      text-decoration: none; letter-spacing: -0.01em;
+    }
+    .footer-brand .footer-logo em { color: var(--accent); font-style: normal; }
+    .footer-tagline {
+      font-size: 13px; color: var(--text-2); line-height: 1.6;
+      margin-top: 10px; max-width: 240px;
+    }
+    .footer-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 20px;
+      background: var(--accent); color: #07090f;
+      font-weight: 700; font-size: 13px;
+      padding: 8px 18px; border-radius: 999px; text-decoration: none;
+    }
+    .footer-col h4 {
+      font-size: 11px; font-weight: 600; color: var(--text-2);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a {
+      font-size: 14px; color: var(--text-2); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col ul a:hover { color: var(--accent); }
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      padding: 20px 40px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-copy { font-size: 12px; color: var(--text-2); }
     .footer-tg {
-      font-size: 13px; color: var(--accent);
+      font-size: 12px; color: var(--accent);
       text-decoration: none; font-family: 'JetBrains Mono', monospace;
     }
 
@@ -485,10 +523,10 @@
       .stats-inner { grid-template-columns: repeat(2,1fr); padding: 56px 20px; }
       .cta-section { padding: 90px 20px; }
 
-      footer {
-        flex-direction: column; gap: 10px; text-align: center;
-        padding: 22px 20px;
+      .footer-inner {
+        grid-template-columns: 1fr; gap: 32px; padding: 40px 20px 24px;
       }
+      .footer-bottom { padding: 16px 20px; flex-direction: column; gap: 8px; text-align: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -538,7 +576,7 @@
 </div>
 
 <!-- SERVICES -->
-<section class="services-section">
+<section id="services" class="services-section">
   <div class="wrap">
     <p class="section-kicker r">НАПРАВЛЕНИЯ</p>
     <h2 class="section-title r d1">Три типа продуктов, которые я строю</h2>
@@ -594,7 +632,7 @@
 </section>
 
 <!-- CASES -->
-<section class="cases-section">
+<section id="cases" class="cases-section">
   <div class="wrap">
     <h2 class="section-title r">Готовые решения в деле</h2>
     <div class="cases-bento">
@@ -666,7 +704,7 @@
 </div>
 
 <!-- CTA -->
-<section class="cta-section">
+<section id="cta" class="cta-section">
   <h2 class="cta-head r">Обсудим ваш проект?</h2>
   <p class="cta-sub r d1">Расскажите что нужно автоматизировать. Отвечу в течение часа.</p>
   <a href="https://t.me/sbahmetev" target="_blank" class="btn-hero r d2" style="font-size: 17px; padding: 16px 36px;">Написать в Telegram</a>
@@ -674,8 +712,38 @@
 
 <!-- FOOTER -->
 <footer>
-  <span class="footer-copy">Сергей Бахметьев, 2026</span>
-  <a href="https://t.me/sbahmetev" target="_blank" class="footer-tg">@sbahmetev</a>
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+      <a href="https://t.me/sbahmetev" class="footer-logo">Бахметьев<em>.</em>AI</a>
+      <p class="footer-tagline">Собираю AI-решения для бизнеса на Telegram. Боты, агенты, автоматизация.</p>
+      <a href="https://t.me/sbahmetev" target="_blank" class="footer-cta">Написать в Telegram →</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Продукты</h4>
+      <ul>
+        <li><a href="https://t.me/silaole_bot" target="_blank">Ника — фитнес-бот</a></li>
+        <li><a href="https://t.me/yaro_rieltor_bot" target="_blank">Агентура — риелторам</a></li>
+        <li><a href="https://t.me/sbahmetev" target="_blank">Jarvis — AI-агент</a></li>
+        <li><a href="https://t.me/sbahmetev" target="_blank">Мой Друг — AI-компаньон</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Разделы</h4>
+      <ul>
+        <li><a href="#services">Услуги</a></li>
+        <li><a href="#cases">Кейсы</a></li>
+        <li><a href="#cta">Связаться</a></li>
+      </ul>
+    </div>
+
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© Сергей Бахметьев, 2026 — AI-разработчик</span>
+    <a href="https://t.me/sbahmetev" target="_blank" class="footer-tg">@sbahmetev</a>
+  </div>
 </footer>
 
 <script>
