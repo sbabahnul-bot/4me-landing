@@ -4,7 +4,9 @@ import requests
 from datetime import datetime
 from posts import POSTS
 
-BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "8826177383:AAGYFJE44q07UZdsboLHhJZGb4jHKrblmHQ")
+BOT_TOKEN = os.environ.get("TG_BOT_TOKEN")
+if not BOT_TOKEN:
+    raise RuntimeError("TG_BOT_TOKEN environment variable is not set")
 CHANNEL = "@bahmetev_ai"
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
 
