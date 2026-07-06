@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4 бота в production — Сергей Бахметьев</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg:#020610; --surface:#070e1e; --s2:#0d1528;
+    --accent:#06b6d4; --adim:rgba(6,182,212,.12);
+    --text:#edf2f7; --t2:#7b92a8;
+    --border:rgba(255,255,255,.08);
+    --green:#22c55e; --gdim:rgba(34,197,94,.12);
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Outfit',system-ui,sans-serif;overflow:hidden;height:100vh;width:100vw;user-select:none}
+
+  /* ── ENGINE ── */
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:52px 72px 86px;opacity:0;pointer-events:none;transition:opacity .35s ease}
+  .slide.active{opacity:1;pointer-events:all}
+  .slide.center{align-items:center;text-align:center}
+  .glow{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse 55% 45% at 85% 55%,rgba(6,182,212,.07) 0%,transparent 65%)}
+  .prog-bar{position:fixed;top:0;left:0;right:0;height:2px;background:var(--border);z-index:200}
+  .prog-fill{height:100%;background:var(--accent);transition:width .4s ease}
+  .slide-num{position:fixed;top:20px;right:28px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);z-index:200}
+  .kb-hint{position:fixed;top:20px;left:28px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(123,146,168,.4);z-index:200}
+  kbd{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:10px}
+  .nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:rgba(7,14,30,.92);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:999px;padding:8px 20px;z-index:200}
+  .nav-btn{background:none;border:none;cursor:pointer;color:var(--t2);font-size:18px;padding:3px 10px;border-radius:8px;transition:color .2s,background .2s}
+  .nav-btn:hover{color:var(--accent);background:var(--adim)}
+  .nav-dots{display:flex;gap:5px;align-items:center}
+  .nav-dot{width:5px;height:5px;border-radius:50%;background:var(--t2);cursor:pointer;transition:background .2s,transform .2s}
+  .nav-dot.active{background:var(--accent);transform:scale(1.5)}
+  .nav-counter{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);min-width:44px;text-align:center}
+
+  /* ── TYPE ── */
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .kd{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+  h1{font-size:clamp(38px,4.8vw,64px);font-weight:800;line-height:1.06;letter-spacing:-.04em;margin-bottom:18px}
+  h2{font-size:clamp(28px,3.5vw,48px);font-weight:800;line-height:1.07;letter-spacing:-.035em;margin-bottom:14px}
+  .hi{color:var(--accent)}
+  .subtitle{font-size:16px;color:var(--t2);line-height:1.65;max-width:540px}
+  .dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .anim{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
+  .anim.in{opacity:1;transform:none}
+  .anim-x{opacity:0;transform:translateX(-14px);transition:opacity .4s ease,transform .4s ease}
+  .anim-x.in{opacity:1;transform:none}
+
+  /* ── BOT LAYOUT ── */
+  .bot-layout{display:grid;grid-template-columns:1fr 340px;gap:44px;width:100%;align-items:start}
+  .bot-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .bot-emoji{font-size:38px;line-height:1}
+  .bot-name{font-size:clamp(26px,2.8vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .bot-handle{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);background:var(--adim);border:1px solid rgba(6,182,212,.2);padding:3px 11px;border-radius:999px;margin-top:5px;display:inline-block}
+  .bot-desc{font-size:15px;color:var(--t2);line-height:1.65;margin-bottom:18px;max-width:480px}
+  .feat-list{display:flex;flex-direction:column;gap:10px}
+  .feat{display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4}
+  .feat-icon{width:28px;height:28px;border-radius:7px;background:var(--adim);border:1px solid rgba(6,182,212,.18);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:1px}
+  .feat-body{flex:1}
+  .feat-sub{font-size:12px;color:var(--t2);margin-top:2px}
+
+  /* ── PHONE MOCKUP ── */
+  .phone{
+    width:220px; height:420px;
+    background:#1a1a2e;
+    border-radius:32px;
+    border:2px solid rgba(255,255,255,.12);
+    box-shadow:0 24px 60px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.04);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    flex-shrink:0;
+    position:relative;
+    margin:0 auto;
+  }
+  /* real screenshot slot */
+  .phone.has-photo .phone-chat{display:none}
+  .phone.has-photo .phone-photo{display:block}
+  .phone-photo{display:none;width:100%;height:100%;object-fit:cover;object-position:top}
+
+  .phone-bar{
+    background:#1f1f35;
+    padding:10px 14px 8px;
+    display:flex;align-items:center;gap:8px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    flex-shrink:0;
+  }
+  .phone-bar-back{color:var(--accent);font-size:16px}
+  .phone-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .phone-bar-info{flex:1}
+  .phone-bot-name{font-size:13px;font-weight:600;color:#fff;line-height:1.1}
+  .phone-bot-status{font-size:10px;color:var(--green)}
+  .phone-chat{flex:1;overflow:hidden;padding:10px 8px;display:flex;flex-direction:column;gap:6px;background:#161628}
+
+  /* bubbles */
+  .msg{max-width:82%;padding:7px 10px;border-radius:14px;font-size:11.5px;line-height:1.45;word-break:break-word}
+  .msg-bot{background:#1f3050;color:#d4e5f7;border-bottom-left-radius:4px;align-self:flex-start}
+  .msg-user{background:#006d82;color:#e8f8fb;border-bottom-right-radius:4px;align-self:flex-end}
+  .msg-time{font-size:9px;opacity:.55;text-align:right;margin-top:2px}
+
+  /* keyboard buttons */
+  .tg-keyboard{background:#1a1a2e;padding:6px 8px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+  .tg-btn-row{display:flex;gap:4px;margin-bottom:4px}
+  .tg-btn-row:last-child{margin-bottom:0}
+  .tg-btn{flex:1;background:#1f3050;border:none;color:#d4e5f7;font-size:9.5px;padding:5px 4px;border-radius:8px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* photo placeholder */
+  .phone-placeholder{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    height:100%;gap:8px;color:var(--t2);font-size:11px;
+    background:repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 8px);
+  }
+  .phone-placeholder-icon{font-size:28px;opacity:.4}
+  .phone-placeholder-text{text-align:center;line-height:1.5;opacity:.5;font-size:10px}
+
+  /* ── INFRA ── */
+  .infra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:840px}
+  .infra-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px}
+  .infra-icon{font-size:24px;margin-bottom:8px}
+  .infra-title{font-size:15px;font-weight:700;margin-bottom:5px}
+  .infra-desc{font-size:12px;color:var(--t2);line-height:1.5}
+
+  /* ── TITLE CHIPS ── */
+  .title-chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+  .title-chip{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px 16px;font-size:13px}
+  .title-chip span{color:var(--t2)}
+  .title-chip strong{color:var(--accent)}
+
+  /* ── FINAL ── */
+  .final-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:820px;margin:20px 0}
+  .final-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:left}
+  .final-card-title{font-size:14px;font-weight:700;margin-bottom:5px}
+  .final-card-price{font-size:20px;font-weight:800;color:var(--accent)}
+  .final-card-note{font-size:11px;color:var(--t2);margin-top:3px}
+  .btn-cta{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#07090f;font-weight:700;font-size:15px;padding:12px 28px;border-radius:999px;text-decoration:none;margin-top:8px;transition:transform .15s,box-shadow .15s}
+  .btn-cta:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(6,182,212,.38)}
+
+  /* ── QR ── */
+  .qr-wrap{
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:18px;padding:20px;
+  }
+  #qr-code canvas,#qr-code img{border-radius:10px!important;display:block}
+  .qr-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);text-align:center;line-height:1.5}
+  .qr-url{font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace}
+  .final-row{display:flex;align-items:center;gap:40px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="prog-bar"><div class="prog-fill" id="prog"></div></div>
+<div class="slide-num" id="snum"></div>
+<div class="kb-hint"><kbd>←</kbd> <kbd>→</kbd></div>
+
+<!-- ══════════════ SLIDE 1 — КТО ВЫ ══════════════ -->
+<div class="slide active" data-i="0">
+  <div class="kicker"><div class="kd"></div>О СЕБЕ</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;width:100%;align-items:start">
+    <div>
+      <h2>Сергей<br><span class="hi">Бахметьев</span></h2>
+      <p class="subtitle" style="margin-bottom:20px">Пенсионер, который за курс вайбкодинга собрал линейку AI-ботов для малого бизнеса и запустил их в production.</p>
+      <div class="feat-list" id="fa">
+        <div class="feat anim-x"><div class="feat-icon">🤖</div><div class="feat-body">Создал за курс<div class="feat-sub">4 бота + персональный агент + лендинг-портфолио</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🖥️</div><div class="feat-body">Запустил на сервере<div class="feat-sub">VPS beget.com, systemd, работают 24/7</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🔗</div><div class="feat-body">Ссылка на проект<div class="feat-sub">sbabahnul-bot.github.io/4me-landing</div></div></div>
+      </div>
+    </div>
+    <div class="anim" style="display:flex;flex-direction:column;gap:14px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);letter-spacing:.08em;margin-bottom:12px">ФАКТЫ О ПРОДУКТЕ</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:15px">🎯 <strong>Какую проблему решает</strong><div style="font-size:13px;color:var(--t2);margin-top:3px">Малый бизнес теряет клиентов — никто не отвечает ночью и в выходные</div></div>
+          <div style="font-size:15px">👥 <strong>Кому полезно</strong><div style="font-size:13px;color:var(--t2);margin-top:3px">Фитнес-клубы, барбершопы, риелторы, любой сервисный бизнес</div></div>
+          <div style="font-size:15px">⚡ <strong>Фишки</strong><div style="font-size:13px;color:var(--t2);margin-top:3px">Claude AI внутри, память клиентов, автопинг, готово за 3 дня</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 3 — ПРОБЛЕМА ══════════════ -->
+<div class="slide" data-i="1">
+  <div class="kicker"><div class="kd"></div>КЛЮЧЕВАЯ ПРОБЛЕМА</div>
+  <h2><span class="hi">Ключевая проблема,</span><br>которую решает мой продукт</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;width:100%;max-width:960px;margin-top:4px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px" class="anim">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t2);letter-spacing:.08em;margin-bottom:14px">БОЛЬ БИЗНЕСА</div>
+      <div class="feat-list">
+        <div class="feat"><div class="feat-icon">📵</div><div class="feat-body">Администратор не отвечает — клиент уходит к конкуренту<div class="feat-sub">Особенно критично вечером и в выходные</div></div></div>
+        <div class="feat"><div class="feat-icon">🔁</div><div class="feat-body">80% вопросов одинаковые<div class="feat-sub">«Сколько стоит?», «Вы работаете?», «Как записаться?»</div></div></div>
+        <div class="feat"><div class="feat-icon">💸</div><div class="feat-body">Ещё один сотрудник — от 30 000 ₽/мес<div class="feat-sub">И всё равно не работает по ночам</div></div></div>
+      </div>
+    </div>
+    <div style="background:var(--adim);border:1px solid rgba(6,182,212,.25);border-radius:14px;padding:24px" class="anim">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.08em;margin-bottom:14px">МОЁ РЕШЕНИЕ</div>
+      <div class="feat-list">
+        <div class="feat"><div class="feat-icon">🤖</div><div class="feat-body">Telegram-бот с Claude AI<div class="feat-sub">Отвечает за секунды, круглосуточно, без выходных</div></div></div>
+        <div class="feat"><div class="feat-icon">⚡</div><div class="feat-body">Готово за 3 дня<div class="feat-sub">От разговора до работающего бота на сервере</div></div></div>
+        <div class="feat"><div class="feat-icon">💰</div><div class="feat-body">От 10 000 ₽ разово или от 1 990 ₽/мес<div class="feat-sub">Окупается за первого же пришедшего клиента</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 4 — КАК ВЫГЛЯДИТ ══════════════ -->
+<div class="slide" data-i="2">
+  <div class="kicker"><div class="kd"></div>КАК РАБОТАЕТ / КАК ВЫГЛЯДИТ</div>
+  <h2>Боты в <span class="hi">действии</span></h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;width:100%;margin-top:8px">
+    <!-- Ника -->
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="phone" style="height:320px">
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#1d4ed8">💪</div>
+          <div class="phone-bar-info"><div class="phone-bot-name">Ника</div><div class="phone-bot-status">● онлайн</div></div>
+        </div>
+        <div class="phone-chat" style="font-size:10.5px">
+          <div class="msg msg-bot" style="font-size:10.5px">Привет! Я Ника 💪 Чем помочь?</div>
+          <div class="msg msg-user" style="font-size:10.5px">Сколько абонемент?</div>
+          <div class="msg msg-bot" style="font-size:10.5px">Месяц — 2 500 ₽<br>3 мес — 6 500 ₽<br>✅ Первая — бесплатно!</div>
+          <div class="msg msg-user" style="font-size:10.5px">Хочу записаться</div>
+          <div class="msg msg-bot" style="font-size:10.5px">Как вас зовут? 😊</div>
+        </div>
+        <div class="tg-keyboard" style="padding:5px 6px">
+          <div class="tg-btn-row"><div class="tg-btn">💰 Цены</div><div class="tg-btn">🎯 Записаться</div></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace">@silavole_bot</div>
+    </div>
+    <!-- Барбершоп -->
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="phone" style="height:320px">
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#374151">✂️</div>
+          <div class="phone-bar-info"><div class="phone-bot-name">Барбершоп</div><div class="phone-bot-status">● онлайн</div></div>
+        </div>
+        <div class="phone-chat">
+          <div class="msg msg-bot" style="font-size:10.5px">Привет! Выбери раздел 👇</div>
+          <div class="msg msg-user" style="font-size:10.5px">Мужские стрижки</div>
+          <div class="msg msg-bot" style="font-size:10.5px">💈 Андеркат<br>700 ₽<br>[фото причёски]</div>
+          <div class="msg msg-user" style="font-size:10.5px">Записаться</div>
+          <div class="msg msg-bot" style="font-size:10.5px">Как вас зовут?</div>
+        </div>
+        <div class="tg-keyboard" style="padding:5px 6px">
+          <div class="tg-btn-row"><div class="tg-btn">👨 Муж</div><div class="tg-btn">👩 Жен</div></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace">@barbershoper_bot</div>
+    </div>
+    <!-- Агентура -->
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="phone" style="height:320px">
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#7c3aed">🏠</div>
+          <div class="phone-bar-info"><div class="phone-bot-name">Яро | Агентство</div><div class="phone-bot-status">● онлайн</div></div>
+        </div>
+        <div class="phone-chat">
+          <div class="msg msg-bot" style="font-size:10.5px">Привет, Иван! Я Яро 👋 Какой бюджет рассматриваешь?</div>
+          <div class="msg msg-user" style="font-size:10.5px">До 5 млн, двушку</div>
+          <div class="msg msg-bot" style="font-size:10.5px">Район принципиален — центр или спальные?</div>
+          <div class="msg msg-user" style="font-size:10.5px">Ближе к метро</div>
+        </div>
+        <div class="tg-keyboard" style="padding:5px 6px">
+          <div class="tg-btn-row"><div class="tg-btn">🔍 Ищу</div><div class="tg-btn">🏷️ Продаю</div></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace">@yaro_rieltor_bot</div>
+    </div>
+    <!-- Демо -->
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div class="phone" style="height:320px">
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#065f46">🎪</div>
+          <div class="phone-bar-info"><div class="phone-bot-name">Фитнес Демо</div><div class="phone-bot-status">● онлайн</div></div>
+        </div>
+        <div class="phone-chat">
+          <div class="msg msg-bot" style="font-size:10.5px">Это демо-бот 🏋️ Попробуй как работает!</div>
+          <div class="msg msg-user" style="font-size:10.5px">Покажи направления</div>
+          <div class="msg msg-bot" style="font-size:10.5px">💪 Силовые<br>• Групповые<br>• Йога<br>• Кардио</div>
+        </div>
+        <div class="tg-keyboard" style="padding:5px 6px">
+          <div class="tg-btn-row"><div class="tg-btn">💪 Направления</div></div>
+          <div class="tg-btn-row"><div class="tg-btn">🎯 Записаться</div></div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace">@fitness_demo_bot</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 5 — NIKA ══════════════ -->
+<div class="slide" data-i="3">
+  <div class="kicker"><div class="kd"></div>БОТ 1 ИЗ 4</div>
+  <div class="bot-layout">
+    <div>
+      <div class="bot-header">
+        <div class="bot-emoji">💪</div>
+        <div>
+          <div class="bot-name">Ника</div>
+          <div class="bot-handle">@silavole_bot</div>
+        </div>
+      </div>
+      <p class="bot-desc">Администратор для фитнес-клуба. Отвечает на вопросы, показывает расписание и цены, записывает на пробную тренировку — 24/7.</p>
+      <div class="feat-list" id="f1">
+        <div class="feat anim-x"><div class="feat-icon">💰</div><div class="feat-body">Абонементы и цены<div class="feat-sub">Клиент сразу видит все варианты стоимости</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🕐</div><div class="feat-body">Расписание занятий<div class="feat-sub">Групповые тренировки, часы работы, адрес</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🎯</div><div class="feat-body">Запись на пробную тренировку<div class="feat-sub">Собирает имя и телефон → уведомляет администратора</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🔔</div><div class="feat-body">Напоминание незавершившим<div class="feat-sub">Через 24 часа бот сам пишет — возвращайся</div></div></div>
+      </div>
+    </div>
+    <!-- PHONE -->
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div class="phone" id="phone-nika">
+        <!-- реальный скрин: <img class="phone-photo" src="screens/nika.jpg"> -->
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#1d4ed8">💪</div>
+          <div class="phone-bar-info">
+            <div class="phone-bot-name">Ника | Фитнес-клуб</div>
+            <div class="phone-bot-status">● онлайн</div>
+          </div>
+        </div>
+        <div class="phone-chat">
+          <div class="msg msg-bot">Привет! Я Ника — администратор клуба 💪 Чем могу помочь?<div class="msg-time">10:01</div></div>
+          <div class="msg msg-user">Сколько стоит абонемент?<div class="msg-time">10:01</div></div>
+          <div class="msg msg-bot">🏋️ Наши абонементы:<br><br>• Месяц — 2 500 ₽<br>• 3 месяца — 6 500 ₽<br>• Год — 18 000 ₽<br><br>✅ Первая тренировка бесплатно!<div class="msg-time">10:01</div></div>
+          <div class="msg msg-user">Хочу на пробную<div class="msg-time">10:02</div></div>
+          <div class="msg msg-bot">Как тебя зовут? 😊<div class="msg-time">10:02</div></div>
+        </div>
+        <div class="tg-keyboard">
+          <div class="tg-btn-row">
+            <div class="tg-btn">💰 Абонементы</div>
+            <div class="tg-btn">🕐 Расписание</div>
+          </div>
+          <div class="tg-btn-row">
+            <div class="tg-btn">🎯 Записаться</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--t2);font-family:'JetBrains Mono',monospace;text-align:center">макет · замени скрином</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 3 — FITNESS DEMO ══════════════ -->
+<div class="slide" data-i="4">
+  <div class="kicker"><div class="kd"></div>БОТ 2 ИЗ 4</div>
+  <div class="bot-layout">
+    <div>
+      <div class="bot-header">
+        <div class="bot-emoji">🎪</div>
+        <div>
+          <div class="bot-name">Фитнес-демо</div>
+          <div class="bot-handle">@fitness_demo_helper_bot</div>
+        </div>
+      </div>
+      <p class="bot-desc">Демо-версия для показа клиентам. Полный функционал Ники — чтобы бизнес мог «потрогать» продукт перед покупкой.</p>
+      <div class="feat-list" id="f2">
+        <div class="feat anim-x"><div class="feat-icon">👆</div><div class="feat-body">Полный функционал боевого бота<div class="feat-sub">Клиент видит именно то, что получит после оплаты</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🔗</div><div class="feat-body">Ссылка для питча<div class="feat-sub">Отправляю в переписке вместо объяснений</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">⚙️</div><div class="feat-body">Отдельный конфиг<div class="feat-sub">Настраивается под любую фитнес-нишу быстро</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">📱</div><div class="feat-body">«Вот, попробуй сам»<div class="feat-sub">Лучший инструмент продаж — живая демонстрация</div></div></div>
+      </div>
+    </div>
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div class="phone" id="phone-demo">
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#065f46">🎪</div>
+          <div class="phone-bar-info">
+            <div class="phone-bot-name">Фитнес Демо</div>
+            <div class="phone-bot-status">● онлайн</div>
+          </div>
+        </div>
+        <div class="phone-chat">
+          <div class="msg msg-bot">Это демо-бот для фитнес-клуба 🏋️<br>Попробуй как он работает!<div class="msg-time">11:30</div></div>
+          <div class="msg msg-user">Покажи направления<div class="msg-time">11:30</div></div>
+          <div class="msg msg-bot">💪 Направления тренировок:<br><br>• Силовые тренировки<br>• Групповые занятия<br>• Йога и растяжка<br>• Функциональный тренинг<br>• Кардио-зона<div class="msg-time">11:30</div></div>
+          <div class="msg msg-user">А адрес?<div class="msg-time">11:31</div></div>
+          <div class="msg msg-bot">📍 ул. Примерная, 1<br>🚇 5 мин от метро<br>🚗 Есть парковка<div class="msg-time">11:31</div></div>
+        </div>
+        <div class="tg-keyboard">
+          <div class="tg-btn-row">
+            <div class="tg-btn">💪 Направления</div>
+            <div class="tg-btn">📍 Адрес</div>
+          </div>
+          <div class="tg-btn-row">
+            <div class="tg-btn">🎯 Записаться на пробную</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--t2);font-family:'JetBrains Mono',monospace;text-align:center">макет · замени скрином</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 4 — BARBERSHOP ══════════════ -->
+<div class="slide" data-i="5">
+  <div class="kicker"><div class="kd"></div>БОТ 3 ИЗ 4</div>
+  <div class="bot-layout">
+    <div>
+      <div class="bot-header">
+        <div class="bot-emoji">✂️</div>
+        <div>
+          <div class="bot-name">Барбершоп</div>
+          <div class="bot-handle">@barbershoper_bot</div>
+        </div>
+      </div>
+      <p class="bot-desc">Администратор для барбершопов и салонов. Галерея причёсок с фото и ценами, сбор заявок через inline-кнопки.</p>
+      <div class="feat-list" id="f3">
+        <div class="feat anim-x"><div class="feat-icon">🖼️</div><div class="feat-body">Галерея причёсок с фото<div class="feat-sub">Мужские и женские, с ценами — фото прямо в боте</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🔘</div><div class="feat-body">Inline-кнопки навигации<div class="feat-sub">Клиент листает стрижки без ввода команд</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">📋</div><div class="feat-body">Сбор заявки: имя + телефон<div class="feat-sub">ConversationHandler — диалог в несколько шагов</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🔔</div><div class="feat-body">Уведомление мастеру<div class="feat-sub">Заявка сразу падает в Telegram владельца</div></div></div>
+      </div>
+    </div>
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div class="phone" id="phone-barber">
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#374151">✂️</div>
+          <div class="phone-bar-info">
+            <div class="phone-bot-name">Барбершоп Бот</div>
+            <div class="phone-bot-status">● онлайн</div>
+          </div>
+        </div>
+        <div class="phone-chat">
+          <div class="msg msg-bot">Привет! Выбери раздел 👇<div class="msg-time">14:00</div></div>
+          <div class="msg msg-user">Мужские стрижки<div class="msg-time">14:00</div></div>
+          <div class="msg msg-bot">💈 Андеркат<br>Выбритые виски, длинный верх<br><b>700 ₽</b><br><br>[фото причёски]<div class="msg-time">14:00</div></div>
+          <div class="msg msg-user">Записаться<div class="msg-time">14:01</div></div>
+          <div class="msg msg-bot">Как тебя зовут?<div class="msg-time">14:01</div></div>
+          <div class="msg msg-user">Иван<div class="msg-time">14:01</div></div>
+          <div class="msg msg-bot">Оставь номер телефона 📞<div class="msg-time">14:01</div></div>
+        </div>
+        <div class="tg-keyboard">
+          <div class="tg-btn-row">
+            <div class="tg-btn">👨 Мужские</div>
+            <div class="tg-btn">👩 Женские</div>
+          </div>
+          <div class="tg-btn-row">
+            <div class="tg-btn">📝 Записаться</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--t2);font-family:'JetBrains Mono',monospace;text-align:center">макет · замени скрином</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 5 — RIELTOR ══════════════ -->
+<div class="slide" data-i="6">
+  <div class="kicker"><div class="kd"></div>БОТ 4 ИЗ 4 · ФЛАГМАН</div>
+  <div class="bot-layout">
+    <div>
+      <div class="bot-header">
+        <div class="bot-emoji">🏠</div>
+        <div>
+          <div class="bot-name">Агентура</div>
+          <div class="bot-handle">@yaro_rieltor_bot</div>
+        </div>
+      </div>
+      <p class="bot-desc">AI-помощник Яро для риелторов. Ведёт тёплый диалог с клиентами во время сделки 3–6 месяцев. Пишет сам, когда клиент замолкает.</p>
+      <div class="feat-list" id="f4">
+        <div class="feat anim-x"><div class="feat-icon">🧠</div><div class="feat-body">Claude API — живой диалог<div class="feat-sub">Помнит бюджет, район и пожелания каждого клиента</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">👥</div><div class="feat-body">Покупатель / продавец<div class="feat-sub">Два режима с разными личностями Яро</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">⏰</div><div class="feat-body">Автопинг — пишет первым<div class="feat-sub">Если клиент молчит — бот напомнит о себе</div></div></div>
+        <div class="feat anim-x"><div class="feat-icon">🔔</div><div class="feat-body">Сигнал когда клиент «ожил»<div class="feat-sub">«Сейчас самое время позвонить» — пуш риелтору</div></div></div>
+      </div>
+    </div>
+    <div class="anim" style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div class="phone" id="phone-yaro">
+        <div class="phone-bar">
+          <span class="phone-bar-back">‹</span>
+          <div class="phone-avatar" style="background:#7c3aed">🏠</div>
+          <div class="phone-bar-info">
+            <div class="phone-bot-name">Яро | Агентство</div>
+            <div class="phone-bot-status">● онлайн</div>
+          </div>
+        </div>
+        <div class="phone-chat">
+          <div class="msg msg-bot">Привет, Иван! Я Яро, помогу с поиском квартиры 👋 Расскажи — какой бюджет рассматриваешь?<div class="msg-time">09:15</div></div>
+          <div class="msg msg-user">До 5 миллионов, двушку<div class="msg-time">09:16</div></div>
+          <div class="msg msg-bot">Понял! А район принципиален — ближе к центру или готов рассмотреть спальные?<div class="msg-time">09:16</div></div>
+          <div class="msg msg-user">Желательно ближе к метро<div class="msg-time">09:18</div></div>
+          <div class="msg msg-bot">Отлично, запомнил. Сейчас как раз смотрим несколько вариантов в этом диапазоне, Антон тебе напишет сегодня 🤝<div class="msg-time">09:18</div></div>
+        </div>
+        <div class="tg-keyboard">
+          <div class="tg-btn-row">
+            <div class="tg-btn">🔍 Ищу квартиру</div>
+            <div class="tg-btn">🏷️ Продаю</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--t2);font-family:'JetBrains Mono',monospace;text-align:center">макет · замени скрином</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6 — INFRA ══════════════ -->
+<div class="slide" data-i="7">
+  <div class="kicker"><div class="kd"></div>ИНФРАСТРУКТУРА</div>
+  <h2>Все боты на одном <span class="hi">сервере</span></h2>
+  <div class="infra-grid" id="infra">
+    <div class="infra-card anim"><div class="infra-icon">🖥️</div><div class="infra-title">VPS beget.com</div><div class="infra-desc">Один сервер — все 4 бота. Автозапуск, постоянная работа, лёгкий деплой.</div></div>
+    <div class="infra-card anim"><div class="infra-icon">⚙️</div><div class="infra-title">systemd-сервисы</div><div class="infra-desc">Каждый бот — отдельный .service файл. Автовосстановление при падении.</div></div>
+    <div class="infra-card anim"><div class="infra-icon">🧠</div><div class="infra-title">Claude API</div><div class="infra-desc">Мозг Агентуры. Понимает контекст, помнит диалог, говорит по-русски как человек.</div></div>
+    <div class="infra-card anim"><div class="infra-icon">💬</div><div class="infra-title">python-telegram-bot</div><div class="infra-desc">v20+, async. ConversationHandler, InlineKeyboard, APScheduler — всё в одном.</div></div>
+    <div class="infra-card anim"><div class="infra-icon">🗄️</div><div class="infra-title">SQLite</div><div class="infra-desc">База клиентов в Агентуре. История диалогов, параметры сделок, статусы.</div></div>
+    <div class="infra-card anim"><div class="infra-icon">🔒</div><div class="infra-title">.env секреты</div><div class="infra-desc">Токены и ключи вне кода. python-dotenv. Безопасно, легко менять.</div></div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 7 — FINAL ══════════════ -->
+<div class="slide center" data-i="8">
+  <div class="kicker" style="justify-content:center"><div class="kd"></div>ИТОГ</div>
+  <h2>Продукты готовы.<br>Ищу <span class="hi">первого клиента.</span></h2>
+  <div class="final-grid" id="fg">
+    <div class="final-card anim"><div class="final-card-title">💪 Ника / Барбершоп</div><div class="final-card-price">от 10 000 ₽</div><div class="final-card-note">Бот под ключ за 3 дня</div></div>
+    <div class="final-card anim"><div class="final-card-title">🏠 Агентура</div><div class="final-card-price">от 1 990 ₽/мес</div><div class="final-card-note">14 дней бесплатно</div></div>
+    <div class="final-card anim"><div class="final-card-title">🤖 Под заказ</div><div class="final-card-price">от 15 000 ₽</div><div class="final-card-note">Кастомный бот для ниши</div></div>
+  </div>
+  <div class="final-row">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <a href="https://t.me/sbahmetev" class="btn-cta" target="_blank">Написать в Telegram →</a>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2)">@sbahmetev</div>
+    </div>
+    <div class="qr-wrap anim">
+      <div id="qr-code"></div>
+      <div class="qr-label">Открыть лендинг<br><span class="qr-url">4me-landing</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ NAV ══════════════ -->
+<div class="nav">
+  <button class="nav-btn" onclick="go(-1)">←</button>
+  <div class="nav-dots" id="dots"></div>
+  <div class="nav-counter" id="counter">1 / 7</div>
+  <button class="nav-btn" onclick="go(1)">→</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const N=slides.length;
+let cur=0;
+const shown=new Set();
+
+function initDots(){
+  const d=document.getElementById('dots');
+  slides.forEach((_,i)=>{
+    const dot=document.createElement('div');
+    dot.className='nav-dot'+(i===0?' active':'');
+    dot.onclick=()=>goTo(i);
+    d.appendChild(dot);
+  });
+}
+
+function updateUI(){
+  document.getElementById('counter').textContent=`${cur+1} / ${N}`;
+  document.getElementById('snum').textContent=cur+1;
+  document.getElementById('prog').style.width=`${(cur+1)/N*100}%`;
+  document.querySelectorAll('.nav-dot').forEach((d,i)=>d.classList.toggle('active',i===cur));
+}
+
+function animateSlide(el){
+  if(shown.has(cur))return;
+  shown.add(cur);
+  el.querySelectorAll('.anim,.anim-x').forEach((item,i)=>{
+    setTimeout(()=>item.classList.add('in'),i*110);
+  });
+}
+
+function goTo(n){
+  slides[cur].classList.remove('active');
+  cur=Math.max(0,Math.min(n,N-1));
+  slides[cur].classList.add('active');
+  animateSlide(slides[cur]);
+  updateUI();
+}
+
+function go(d){goTo(cur+d);}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')go(1);
+  if(e.key==='ArrowLeft')go(-1);
+});
+
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?1:-1);});
+
+initDots();updateUI();animateSlide(slides[0]);
+
+// QR-код лендинга
+new QRCode(document.getElementById('qr-code'), {
+  text: 'https://sbabahnul-bot.github.io/4me-landing/',
+  width: 140,
+  height: 140,
+  colorDark: '#edf2f7',
+  colorLight: '#070e1e',
+  correctLevel: QRCode.CorrectLevel.M
+});
+</script>
+</body>
+</html>
