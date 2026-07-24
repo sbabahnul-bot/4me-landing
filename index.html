@@ -376,6 +376,8 @@
       transform: translateY(-4px);
     }
     .case-card.span-2 { grid-row: 1 / 3; }
+    .case-jarvis { grid-row: 1 / 3; }
+    .case-card.span-2.case-agentura { grid-column: 1 / 3; grid-row: 3 / 4; }
 
     .case-card img {
       width: 100%; object-fit: cover; display: block;
@@ -562,7 +564,8 @@
       }
       .case-card.span-2 { grid-row: auto; }
       .case-card.span-2 img { height: 220px; }
-      .case-card.small { grid-row: auto !important; }
+      .case-jarvis { grid-row: auto; }
+      .case-card.span-2.case-agentura { grid-column: auto; grid-row: auto; }
 
       .coming-soon { flex-direction: column; align-items: flex-start; }
 
@@ -678,7 +681,7 @@
         </div>
       </div>
 
-      <div class="case-card small r d1" style="grid-row: 1 / 3;">
+      <div class="case-card small case-jarvis r d1">
         <img src="https://images.unsplash.com/photo-1682159672286-40790338349b?w=600&h=300&fit=crop&crop=center" alt="Jarvis — персональный AI-агент" style="height:150px;">
         <div class="case-body">
           <div class="case-kicker">AI-АГЕНТ / VPS</div>
@@ -688,7 +691,7 @@
         </div>
       </div>
 
-      <div class="case-card span-2 r d3">
+      <div class="case-card span-2 case-agentura r d3">
         <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=900&h=500&fit=crop" alt="Агентура — AI-помощник для риелторов">
         <div class="case-body">
           <div class="case-kicker">НЕДВИЖИМОСТЬ / ПОДПИСКА / ОТ 1 990 ₽/МЕС</div>
