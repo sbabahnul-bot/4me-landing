@@ -331,6 +331,27 @@
       white-space: nowrap;
     }
 
+    .svc-secondary {
+      margin-top: 48px; padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .svc-secondary-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; color: var(--text-2);
+      letter-spacing: 0.1em; margin-bottom: 20px;
+    }
+    .svc-secondary-list { display: flex; flex-direction: column; gap: 14px; }
+    .svc-secondary-row {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+    }
+    .svc-secondary-name {
+      font-size: 15px; font-weight: 600; color: var(--text-2-strong);
+      flex-shrink: 0;
+    }
+    .svc-secondary-desc {
+      font-size: 13px; color: var(--text-2);
+    }
+
     /* ===================== CASES ===================== */
     .cases-section { padding-bottom: 120px; }
 
@@ -585,8 +606,8 @@
 <!-- SERVICES -->
 <section id="services" class="services-section">
   <div class="wrap">
-    <p class="section-kicker r">НАПРАВЛЕНИЯ</p>
-    <h2 class="section-title r d1">Три типа продуктов, которые я строю</h2>
+    <p class="section-kicker r">ОСНОВНОЕ НАПРАВЛЕНИЕ</p>
+    <h2 class="section-title r d1">AI-боты для бизнеса</h2>
     <div class="svc-list">
       <div class="svc-row r d1">
         <div class="svc-num">01</div>
@@ -600,38 +621,22 @@
           <span class="chip-tag">Claude</span>
         </div>
       </div>
-      <div class="svc-row r d2">
-        <div class="svc-num">02</div>
-        <div>
-          <div class="svc-name">Персональные AI-агенты</div>
-          <div class="svc-desc">Умный помощник в Telegram с командой специалистов внутри: разведчик, писатель, стратег. Помнит ваши проекты, работает 24/7 на вашем сервере. Данные только у вас.</div>
+    </div>
+
+    <div class="svc-secondary">
+      <p class="svc-secondary-kicker r">ТАКЖЕ ДЕЛАЮ</p>
+      <div class="svc-secondary-list">
+        <div class="svc-secondary-row r d1">
+          <span class="svc-secondary-name">Персональные AI-агенты</span>
+          <span class="svc-secondary-desc">Умный помощник в Telegram с командой специалистов внутри. Работает 24/7 на вашем сервере.</span>
         </div>
-        <div class="svc-chips">
-          <span class="chip-tag">VPS</span>
-          <span class="chip-tag">Claude Code</span>
+        <div class="svc-secondary-row r d2">
+          <span class="svc-secondary-name">Цифровые продукты и автоматизация</span>
+          <span class="svc-secondary-desc">Боты для онлайн-заработка, партнёрские воронки, рассылки, парсеры данных.</span>
         </div>
-      </div>
-      <div class="svc-row r d3">
-        <div class="svc-num">03</div>
-        <div>
-          <div class="svc-name">Цифровые продукты и автоматизация</div>
-          <div class="svc-desc">Боты для онлайн-заработка, партнёрские воронки, рассылки, парсеры данных. Помогаю монетизировать аудиторию и автоматизировать рутину.</div>
-        </div>
-        <div class="svc-chips">
-          <span class="chip-tag">Автоматизация</span>
-          <span class="chip-tag">Монетизация</span>
-        </div>
-      </div>
-      <div class="svc-row r d4">
-        <div class="svc-num">04</div>
-        <div>
-          <div class="svc-name">Сайты, лендинги и карточки товаров</div>
-          <div class="svc-desc">Разработка одностраничных сайтов и лендингов под любую задачу. Карточки товаров для Wildberries, Ozon и других маркетплейсов: тексты, визуал, оформление.</div>
-        </div>
-        <div class="svc-chips">
-          <span class="chip-tag">HTML/CSS</span>
-          <span class="chip-tag">Wildberries</span>
-          <span class="chip-tag">Ozon</span>
+        <div class="svc-secondary-row r d3">
+          <span class="svc-secondary-name">Сайты, лендинги и карточки товаров</span>
+          <span class="svc-secondary-desc">Одностраничники и лендинги, карточки для Wildberries и Ozon.</span>
         </div>
       </div>
     </div>
