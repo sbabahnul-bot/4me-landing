@@ -413,6 +413,22 @@
       margin-top: 14px;
     }
 
+    .coming-soon {
+      margin-top: 18px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+    }
+    .coming-soon .coming-tag { margin-top: 0; }
+    .coming-soon-name { font-size: 15px; font-weight: 700; color: var(--text-2-strong); }
+    .coming-soon-desc { font-size: 13px; color: var(--text-2); flex: 1; min-width: 220px; }
+    .coming-soon-link {
+      font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none;
+      white-space: nowrap;
+    }
+
     /* ===================== STATS ===================== */
     .stats-strip {
       background: var(--surface);
@@ -546,6 +562,9 @@
       }
       .case-card.span-2 { grid-row: auto; }
       .case-card.span-2 img { height: 220px; }
+      .case-card.small { grid-row: auto !important; }
+
+      .coming-soon { flex-direction: column; align-items: flex-start; }
 
       .stats-inner { grid-template-columns: repeat(2,1fr); padding: 56px 20px; }
       .cta-section { padding: 90px 20px; }
@@ -659,23 +678,13 @@
         </div>
       </div>
 
-      <div class="case-card small r d1">
-        <img src="https://images.unsplash.com/photo-1682159672286-40790338349b?w=600&h=150&fit=crop&crop=center" alt="Jarvis — персональный AI-агент">
+      <div class="case-card small r d1" style="grid-row: 1 / 3;">
+        <img src="https://images.unsplash.com/photo-1682159672286-40790338349b?w=600&h=300&fit=crop&crop=center" alt="Jarvis — персональный AI-агент" style="height:150px;">
         <div class="case-body">
           <div class="case-kicker">AI-АГЕНТ / VPS</div>
           <div class="case-name">Jarvis — персональный AI-агент</div>
           <div class="case-desc">Помощник с командой из 10 специалистов. Работает через Telegram с VPS-сервера.</div>
           <a href="https://t.me/sbahmetev" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--accent);font-weight:700;font-size:13px;padding:7px 16px;border-radius:999px;text-decoration:none;border:1px solid rgba(6,182,212,0.4);">Написать →</a>
-        </div>
-      </div>
-
-      <div class="case-card small r d2">
-        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=150&fit=crop&crop=center" alt="Мой Друг — AI-компаньон">
-        <div class="case-body">
-          <div class="case-kicker">AI-КОМПАНЬОН / В РАЗРАБОТКЕ</div>
-          <div class="case-name">Мой Друг</div>
-          <div class="case-desc">AI-компаньон для живого общения на русском. Помнит всё о вас, доступен в любое время. Подписка 299 руб./мес.</div>
-          <a href="https://t.me/sbahmetev" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--accent);font-weight:700;font-size:13px;padding:7px 16px;border-radius:999px;text-decoration:none;border:1px solid rgba(6,182,212,0.4);">Ранний доступ →</a>
         </div>
       </div>
 
@@ -689,6 +698,13 @@
         </div>
       </div>
 
+    </div>
+
+    <div class="coming-soon r d4">
+      <span class="coming-tag">Скоро</span>
+      <span class="coming-soon-name">Мой Друг</span>
+      <span class="coming-soon-desc">AI-компаньон для живого общения на русском. Помнит всё о вас, доступен в любое время. Подписка 299 руб./мес.</span>
+      <a href="https://t.me/sbahmetev" target="_blank" class="coming-soon-link">Ранний доступ →</a>
     </div>
   </div>
 </section>
