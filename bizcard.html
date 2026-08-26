@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Визитка — Сергей Бахметьев</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Outfit', sans-serif;
+    gap: 24px;
+    padding: 40px;
+  }
+  .label {
+    color: #3a4a5a;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+  .card {
+    width: 1063px;
+    height: 591px;
+    background: #020610;
+    border-radius: 20px;
+    border: 1px solid rgba(6,182,212,0.18);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(6,182,212,0.05);
+    display: flex;
+    overflow: hidden;
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(6,182,212,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6,182,212,0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+  }
+
+  /* LEFT */
+  .card-left {
+    flex: 0 0 50%;
+    padding: 52px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+  }
+  .card-left::after {
+    content: '';
+    position: absolute;
+    top: 10%; right: 0; bottom: 10%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(6,182,212,0.25) 40%, rgba(6,182,212,0.25) 60%, transparent);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .brand-badge {
+    width: 38px; height: 38px; border-radius: 9px;
+    background: rgba(6,182,212,0.12);
+    border: 1px solid rgba(6,182,212,0.28);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700; color: #06b6d4;
+  }
+  .brand-name {
+    font-size: 12px; color: #5a7a8a; line-height: 1.4; max-width: 160px;
+  }
+  .person { margin: 28px 0 24px; }
+  .person-name {
+    font-size: 36px; font-weight: 800; color: #edf2f7;
+    letter-spacing: -0.03em; line-height: 1.06; margin-bottom: 6px;
+  }
+  .divider {
+    width: 44px; height: 2px; border-radius: 2px;
+    background: linear-gradient(to right, #06b6d4, transparent);
+    margin: 14px 0;
+  }
+  .person-title {
+    font-size: 11px; color: #06b6d4;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .contacts { display: flex; flex-direction: column; gap: 9px; }
+  .contact-row { display: flex; align-items: center; gap: 9px; }
+  .contact-icon { width: 20px; text-align: center; }
+  .contact-icon svg { width: 13px; height: 13px; fill: #06b6d4; vertical-align: middle; }
+  .contact-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px; color: #6a8a9a;
+  }
+
+  /* RIGHT */
+  .card-right {
+    flex: 1;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card-right::before {
+    content: '';
+    position: absolute;
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .illustration { width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<div class="label">ВИЗИТНАЯ КАРТОЧКА · 90 × 50 ММ · 300 DPI</div>
+
+<div class="card">
+  <!-- LEFT: INFO -->
+  <div class="card-left">
+    <div class="brand">
+      <div class="brand-badge">БЦС</div>
+      <div class="brand-name">Бюро цифровых<br>сотрудников</div>
+    </div>
+    <div class="person">
+      <div class="person-name">Сергей<br>Бахметьев</div>
+      <div class="divider"></div>
+      <div class="person-title">Инженер по оптимизации бизнеса</div>
+    </div>
+    <div class="contacts">
+      <div class="contact-row">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.01L6.6 10.8z"/></svg></div>
+        <div class="contact-text">+7 963-189-70-83</div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+        <div class="contact-text">bah@mail.ru</div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg></div>
+        <div class="contact-text">@sbahmetev</div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+        <div class="contact-text">bahmetev.ai</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: HANDSHAKE ILLUSTRATION -->
+  <div class="card-right">
+    <svg class="illustration" viewBox="0 0 530 591" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#f0c896"/>
+          <stop offset="100%" style="stop-color:#d4956a"/>
+        </linearGradient>
+        <linearGradient id="skinDark" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#d4956a"/>
+          <stop offset="100%" style="stop-color:#b8733e"/>
+        </linearGradient>
+        <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#0d2238"/>
+          <stop offset="50%" style="stop-color:#071828"/>
+          <stop offset="100%" style="stop-color:#040f1a"/>
+        </linearGradient>
+        <linearGradient id="metalLight" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1a3a5c"/>
+          <stop offset="100%" style="stop-color:#0d2238"/>
+        </linearGradient>
+        <linearGradient id="suit" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#1e2a40"/>
+          <stop offset="100%" style="stop-color:#111825"/>
+        </linearGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="softglow" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="10" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Center glow -->
+      <ellipse cx="265" cy="300" rx="140" ry="100" fill="url(#centerGlow)"/>
+
+      <!-- ═══ ROBOT ARM — from left ═══ -->
+      <!-- Arm/forearm -->
+      <rect x="20" y="262" width="130" height="64" rx="14" fill="url(#metal)"/>
+      <rect x="20" y="262" width="130" height="4" rx="2" fill="rgba(6,182,212,0.45)"/>
+      <rect x="20" y="322" width="130" height="3" rx="1.5" fill="rgba(6,182,212,0.15)"/>
+      <!-- Arm panel lines -->
+      <rect x="38" y="276" width="1.5" height="34" rx="1" fill="rgba(6,182,212,0.25)"/>
+      <rect x="38" y="293" width="40" height="1.5" rx="1" fill="rgba(6,182,212,0.25)"/>
+      <circle cx="78" cy="293" r="4" fill="rgba(6,182,212,0.4)" filter="url(#glow)"/>
+      <circle cx="78" cy="293" r="2" fill="#06b6d4" opacity="0.9"/>
+      <rect x="100" y="278" width="1.5" height="30" rx="1" fill="rgba(6,182,212,0.15)"/>
+      <circle cx="38" cy="276" r="2.5" fill="#06b6d4" filter="url(#glow)"/>
+
+      <!-- Wrist -->
+      <rect x="144" y="254" width="36" height="80" rx="12" fill="#0a1c2e"/>
+      <rect x="148" y="258" width="28" height="72" rx="10" fill="url(#metalLight)"/>
+      <rect x="159" y="268" width="1.5" height="52" rx="1" fill="rgba(6,182,212,0.2)"/>
+
+      <!-- Robot hand palm -->
+      <rect x="174" y="256" width="84" height="76" rx="16" fill="url(#metal)"/>
+      <rect x="174" y="256" width="84" height="4" rx="2" fill="rgba(6,182,212,0.4)"/>
+      <!-- Palm circuit -->
+      <rect x="186" y="272" width="60" height="44" rx="9" fill="rgba(6,182,212,0.05)" stroke="rgba(6,182,212,0.18)" stroke-width="1.2"/>
+      <circle cx="216" cy="294" r="10" fill="none" stroke="rgba(6,182,212,0.35)" stroke-width="1.5"/>
+      <circle cx="216" cy="294" r="4" fill="#06b6d4" opacity="0.85" filter="url(#glow)"/>
+      <circle cx="216" cy="294" r="1.5" fill="white" opacity="0.9"/>
+      <line x1="206" y1="294" x2="194" y2="294" stroke="rgba(6,182,212,0.3)" stroke-width="1.2"/>
+      <line x1="226" y1="294" x2="238" y2="294" stroke="rgba(6,182,212,0.3)" stroke-width="1.2"/>
+      <line x1="216" y1="284" x2="216" y2="272" stroke="rgba(6,182,212,0.3)" stroke-width="1.2"/>
+      <line x1="216" y1="304" x2="216" y2="316" stroke="rgba(6,182,212,0.3)" stroke-width="1.2"/>
+
+      <!-- Robot fingers (pointing right, gripping) -->
+      <!-- Index -->
+      <rect x="252" y="244" width="30" height="36" rx="10" fill="url(#metal)" stroke="rgba(6,182,212,0.18)" stroke-width="1"/>
+      <line x1="267" y1="250" x2="267" y2="258" stroke="rgba(6,182,212,0.28)" stroke-width="1.5"/>
+      <!-- Middle -->
+      <rect x="252" y="232" width="30" height="36" rx="10" fill="url(#metalLight)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+      <line x1="267" y1="238" x2="267" y2="246" stroke="rgba(6,182,212,0.25)" stroke-width="1.5"/>
+      <!-- Ring -->
+      <rect x="252" y="253" width="30" height="32" rx="10" fill="url(#metal)" stroke="rgba(6,182,212,0.15)" stroke-width="1"/>
+      <!-- Pinky -->
+      <rect x="253" y="264" width="26" height="26" rx="9" fill="url(#metal)" stroke="rgba(6,182,212,0.12)" stroke-width="1"/>
+
+      <!-- Robot thumb (below) -->
+      <rect x="178" y="326" width="52" height="24" rx="10" fill="url(#metalLight)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+      <line x1="202" y1="326" x2="202" y2="350" stroke="rgba(6,182,212,0.18)" stroke-width="1.2"/>
+
+      <!-- LED indicator -->
+      <circle cx="274" cy="228" r="5" fill="#06b6d4" opacity="0.85" filter="url(#softglow)"/>
+      <circle cx="274" cy="228" r="2.5" fill="white" opacity="0.9"/>
+
+      <!-- ═══ HUMAN ARM — from right ═══ -->
+      <!-- Suit sleeve -->
+      <rect x="340" y="255" width="190" height="78" rx="14" fill="url(#suit)"/>
+      <!-- Sleeve highlights -->
+      <rect x="340" y="255" width="190" height="4" rx="2" fill="rgba(255,255,255,0.06)"/>
+      <rect x="350" y="280" width="12" height="48" rx="6" fill="rgba(255,255,255,0.04)"/>
+      <!-- Shirt cuff -->
+      <rect x="336" y="256" width="20" height="76" rx="8" fill="#e8e4dc"/>
+      <rect x="336" y="256" width="20" height="6" rx="4" fill="#d4d0c8"/>
+
+      <!-- Wrist skin -->
+      <rect x="300" y="260" width="44" height="68" rx="12" fill="url(#skin)"/>
+
+      <!-- Human hand palm -->
+      <rect x="236" y="262" width="72" height="64" rx="16" fill="url(#skin)"/>
+      <!-- Palm shadow -->
+      <rect x="236" y="310" width="72" height="16" rx="0" fill="url(#skinDark)" opacity="0.5"/>
+      <!-- Knuckle lines -->
+      <line x1="248" y1="280" x2="264" y2="280" stroke="rgba(180,100,50,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="248" y1="288" x2="260" y2="288" stroke="rgba(180,100,50,0.2)" stroke-width="1" stroke-linecap="round"/>
+
+      <!-- Human fingers (pointing left, gripping) -->
+      <!-- Index -->
+      <rect x="212" y="248" width="32" height="36" rx="10" fill="url(#skin)"/>
+      <!-- Middle -->
+      <rect x="212" y="235" width="32" height="37" rx="10" fill="url(#skin)"/>
+      <!-- Ring -->
+      <rect x="212" y="250" width="32" height="34" rx="10" fill="url(#skin)"/>
+      <!-- Pinky -->
+      <rect x="213" y="262" width="28" height="27" rx="9" fill="url(#skinDark)"/>
+
+      <!-- Finger tip shadows -->
+      <rect x="212" y="278" width="32" height="6" rx="0" fill="url(#skinDark)" opacity="0.35"/>
+      <rect x="212" y="266" width="32" height="6" rx="0" fill="url(#skinDark)" opacity="0.25"/>
+
+      <!-- Human thumb (below) -->
+      <rect x="248" y="322" width="56" height="24" rx="10" fill="url(#skin)"/>
+      <rect x="248" y="336" width="56" height="10" rx="0" fill="url(#skinDark)" opacity="0.3"/>
+
+      <!-- ═══ HANDSHAKE GLOW ═══ -->
+      <ellipse cx="258" cy="295" rx="30" ry="20" fill="rgba(6,182,212,0.1)" filter="url(#softglow)"/>
+
+      <!-- ═══ DECORATIVE ═══ -->
+      <!-- Top-right corner bracket -->
+      <rect x="456" y="36" width="48" height="2" rx="1" fill="rgba(6,182,212,0.28)"/>
+      <rect x="500" y="36" width="2" height="48" rx="1" fill="rgba(6,182,212,0.28)"/>
+      <circle cx="500" cy="36" r="3.5" fill="#06b6d4" opacity="0.7" filter="url(#glow)"/>
+
+      <!-- Bottom-left corner bracket -->
+      <rect x="26" y="553" width="48" height="2" rx="1" fill="rgba(6,182,212,0.2)"/>
+      <rect x="26" y="505" width="2" height="50" rx="1" fill="rgba(6,182,212,0.2)"/>
+
+      <!-- Floating dots -->
+      <circle cx="90" cy="148" r="3" fill="#06b6d4" opacity="0.55" filter="url(#glow)">
+        <animate attributeName="opacity" values="0.3;0.7;0.3" dur="3.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="420" cy="440" r="2.5" fill="#06b6d4" opacity="0.45">
+        <animate attributeName="opacity" values="0.2;0.6;0.2" dur="2.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="450" cy="160" r="2" fill="#0ea5e9" opacity="0.6">
+        <animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="55" cy="430" r="2" fill="#06b6d4" opacity="0.35">
+        <animate attributeName="opacity" values="0.15;0.5;0.15" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="380" cy="130" r="1.5" fill="#06b6d4" opacity="0.5">
+        <animate attributeName="opacity" values="0.25;0.65;0.25" dur="2.5s" repeatCount="indefinite"/>
+      </circle>
+
+      <!-- Connection arcs from handshake -->
+      <path d="M 245 252 Q 230 210 255 185" fill="none" stroke="rgba(6,182,212,0.18)" stroke-width="1.5" stroke-dasharray="5,5"/>
+      <path d="M 270 252 Q 290 212 275 182" fill="none" stroke="rgba(6,182,212,0.12)" stroke-width="1.5" stroke-dasharray="5,5"/>
+      <path d="M 245 338 Q 228 378 250 402" fill="none" stroke="rgba(6,182,212,0.14)" stroke-width="1.5" stroke-dasharray="5,5"/>
+      <path d="M 270 338 Q 285 376 268 402" fill="none" stroke="rgba(6,182,212,0.1)" stroke-width="1.5" stroke-dasharray="5,5"/>
+
+      <!-- Small dots cascade -->
+      <circle cx="152" cy="235" r="2.5" fill="rgba(6,182,212,0.5)"/>
+      <circle cx="164" cy="235" r="2.5" fill="rgba(6,182,212,0.3)"/>
+      <circle cx="176" cy="235" r="2.5" fill="rgba(6,182,212,0.15)"/>
+
+      <!-- Bottom tagline -->
+      <line x1="90" y1="524" x2="440" y2="524" stroke="rgba(6,182,212,0.12)" stroke-width="1"/>
+      <text x="265" y="543" text-anchor="middle"
+        font-family="JetBrains Mono, monospace"
+        font-size="10.5" fill="rgba(6,182,212,0.45)"
+        letter-spacing="3.5">AI · AUTOMATION · BUSINESS</text>
+    </svg>
+  </div>
+</div>
+
+<div class="label" style="color:#2a3a4a">для печати: сохрани страницу как PDF · масштаб 100% · 90 × 50 мм</div>
+
+</body>
+</html>

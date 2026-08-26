@@ -2,7 +2,7 @@
 import os
 import requests
 from datetime import datetime
-from posts import POSTS
+from posts_july import POSTS
 
 BOT_TOKEN = os.environ.get("TG_BOT_TOKEN")
 if not BOT_TOKEN:
