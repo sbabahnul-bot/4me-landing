@@ -14,7 +14,7 @@ def send_photo(text, image_path):
     with open(image_path, "rb") as photo:
         r = requests.post(
             f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
-            data={"chat_id": CHANNEL, "caption": text},
+            data={"chat_id": CHANNEL, "caption": text, "parse_mode": "HTML"},
             files={"photo": photo}
         )
     return r.json()
@@ -22,7 +22,7 @@ def send_photo(text, image_path):
 def send_text(text):
     r = requests.post(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        json={"chat_id": CHANNEL, "text": text}
+        json={"chat_id": CHANNEL, "text": text, "parse_mode": "HTML"}
     )
     return r.json()
 
