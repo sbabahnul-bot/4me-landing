@@ -10,6 +10,12 @@ if not BOT_TOKEN:
 CHANNEL = "@bahmetev_ai"
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), "images")
 
+VK_TOKEN = os.environ.get("VK_TOKEN")
+VK_GROUP_ID = os.environ.get("VK_GROUP_ID")
+VK_API = "https://api.vk.com/method"
+VK_V = "5.199"
+
+# ── TELEGRAM ──────────────────────────────────────────────────────────────────
 def send_photo(text, image_path):
     with open(image_path, "rb") as photo:
         r = requests.post(
@@ -26,6 +32,23 @@ def send_text(text):
     )
     return r.json()
 
+# ── VK ────────────────────────────────────────────────────────────────────────
+def vk_post(text):
+    if not VK_TOKEN or not VK_GROUP_ID:
+        return None
+    # Убираем HTML-теги — VK их не поддерживает
+    import re
+    clean = re.sub(r'<[^>]+>', '', text)
+    r = requests.post(f"{VK_API}/wall.post", params={
+        "owner_id": f"-{VK_GROUP_ID}",
+        "from_group": 1,
+        "message": clean,
+        "access_token": VK_TOKEN,
+        "v": VK_V
+    })
+    return r.json()
+
+# ── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     now_hour = now[:16]
@@ -33,15 +56,26 @@ def main():
     for i, post in enumerate(POSTS):
         if post["datetime"] == now_hour:
             image_path = os.path.join(IMAGES_DIR, f"post{i+1}.png")
-            if os.path.exists(image_path):
-                result = send_photo(post["text"], image_path)
-            else:
-                result = send_text(post["text"])
 
-            if result.get("ok"):
-                print(f"[{now}] Опубликован пост {i+1}: {post['datetime']}")
+            # Telegram
+            if os.path.exists(image_path):
+                tg_result = send_photo(post["text"], image_path)
             else:
-                print(f"[{now}] Ошибка пост {i+1}: {result}")
+                tg_result = send_text(post["text"])
+
+            if tg_result.get("ok"):
+                print(f"[{now}] TG: опубликован пост {i+1}")
+            else:
+                print(f"[{now}] TG ошибка пост {i+1}: {tg_result}")
+
+            # VK
+            vk_result = vk_post(post["text"])
+            if vk_result:
+                if vk_result.get("response"):
+                    print(f"[{now}] VK: опубликован пост {i+1} (id={vk_result['response']['post_id']})")
+                else:
+                    print(f"[{now}] VK ошибка пост {i+1}: {vk_result}")
+
             return
 
     print(f"[{now}] Нет поста")
