@@ -3,6 +3,10 @@ import os
 import time
 import requests
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+# время в постах (поле "datetime") указано по Красноярску, а сервер живёт по Москве
+POST_TZ = ZoneInfo("Asia/Krasnoyarsk")
 from posts_october import POSTS
 
 def load_env(path):
@@ -86,7 +90,7 @@ def vk_post(text):
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 def main():
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now = datetime.now(POST_TZ).strftime("%Y-%m-%d %H:%M")
     now_hour = now[:16]
 
     for i, post in enumerate(POSTS):
