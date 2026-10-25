@@ -117,7 +117,12 @@ def main():
                 print(f"[{now}] TG ошибка пост {i+1}: {tg_result}")
 
             # VK
-            vk_result = with_retry(vk_post, post["text"])
+            # VK не принимает картинку через токен сообщества: даём ссылку на пост в Telegram, там картинка
+            vk_text = post["text"]
+            msg_id = (tg_result or {}).get("result", {}).get("message_id")
+            if tg_result and tg_result.get("ok") and msg_id:
+                vk_text += f"\n\nС картинкой и обсуждением: https://t.me/{CHANNEL.lstrip('@')}/{msg_id}"
+            vk_result = with_retry(vk_post, vk_text)
             if vk_result:
                 if vk_result.get("response"):
                     print(f"[{now}] VK: опубликован пост {i+1} (id={vk_result['response']['post_id']})")
